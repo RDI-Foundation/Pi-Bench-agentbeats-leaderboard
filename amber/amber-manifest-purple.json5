@@ -1,0 +1,38 @@
+{
+  manifest_version: "0.1.0",
+  program: {
+    image: "ghcr.io/jyoti-ranjan-das845/gpt-oss-sg-120b:latest",
+    entrypoint: [
+      "gpt-oss-sg-120b",
+      "--host",
+      "0.0.0.0",
+      "--port",
+      "9010"
+    ],
+    env: {
+      LOG_LEVEL: "INFO",
+      OPENAI_API_KEY: "${config.openai_api_key}",
+      NEBIUS_API_KEY: "${config.nebius_api_key}"
+    },
+    network: {
+      endpoints: [
+        { name: "endpoint", port: 9010 }
+      ]
+    }
+  },
+  config_schema: {
+    type: "object",
+    properties: {
+      openai_api_key: { type: "string", secret: true },
+      nebius_api_key: { type: "string", secret: true }
+    },
+    required: ["openai_api_key", "nebius_api_key"],
+    additionalProperties: false
+  },
+  provides: {
+    a2a: { kind: "a2a", endpoint: "endpoint" }
+  },
+  exports: {
+    a2a: "a2a"
+  }
+}
