@@ -1,0 +1,45 @@
+{
+  manifest_version: "0.1.0",
+  config_schema: {
+    type: "object",
+    properties: {
+      openai_api_key: { type: "string", secret: true },
+      nebius_api_key: { type: "string", secret: true }
+    },
+    required: ["openai_api_key", "nebius_api_key"],
+    additionalProperties: false
+  },
+  components: {
+    gateway: {
+      manifest: "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/tags/v0.3/amber-manifest.json5",
+      config: {
+        assessment_config: {
+          domain: "policy_compliance",
+        },
+        participant_roles: {
+          green: "evaluator",
+          purple1: "agent"
+        }
+      }
+    },
+    green: {
+      manifest: "https://raw.githubusercontent.com/RDI-Foundation/pi-bench-agentbeats/c475e242668e9d9c114349c2ff71a70b08a57052/amber/amber-manifest-green.json5",
+      config: {
+        openai_api_key: "${config.openai_api_key}"
+      }
+    },
+    purple_agent: {
+      manifest: "./amber-manifest-purple.json5",
+      config: {
+        openai_api_key: "${config.openai_api_key}",
+        nebius_api_key: "${config.nebius_api_key}"
+      }
+    }
+  },
+  bindings: [
+    { to: "#gateway.green", from: "#green.a2a" },
+    { to: "#gateway.purple1", from: "#purple_agent.a2a" },
+    { to: "#green.proxy", from: "#gateway.proxy", weak: true }
+  ],
+  exports: { results: "#gateway.results" }
+}
