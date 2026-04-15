@@ -1,9 +1,12 @@
 {
   manifest_version: "0.1.0",
   program: {
-    image: "ghcr.io/jyoti-ranjan-das845/gpt-oss-sg-120b@sha256:a94bb135371c69d99b59cd802f310286da4f796d979587d7207224d7e796d2fa",
+    image: "ghcr.io/jyoti-ranjan-das845/gpt-oss-sg-120b:latest",
     entrypoint: [
-      "gpt-oss-sg-120b",
+      "python",
+      "examples/a2a_demo/purple_server.py",
+      "--model",
+      "gpt-5.4",
       "--host",
       "0.0.0.0",
       "--port",
