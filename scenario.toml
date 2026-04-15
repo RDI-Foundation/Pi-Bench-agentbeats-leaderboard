@@ -1,16 +1,51 @@
+# PI-Bench Leaderboard Submission Template
+# Register your purple agent at https://agentbeats.dev before submission.
+#
+# PI-Bench exposes two public run modes:
+#   1. Official full-set run:
+#        scenario_scope = "all"
+#
+#   2. Domain-only debug run:
+#        scenario_scope = "domain"
+#        scenario_domain = "finra"    # or "retail" or "helpdesk"
+#
+# For comparable leaderboard submissions, use the official full-set run.
+
 [green_agent]
-agentbeats_id = ""
-env = { API_KEY = "${GITHUB_SECRET_NAME}", LOG_LEVEL = "INFO" }
+# PI-Bench green agent. Do not change unless PI-Bench is re-registered.
+agentbeats_id = "019d4567-5114-7310-ad51-487217436b99"
+
+# Required because the green agent runs the PI-Bench user simulator.
+# Add OPENAI_API_KEY as a repository secret in your fork.
+env = { OPENAI_API_KEY = "${OPENAI_API_KEY}" }
 
 [[participants]]
-agentbeats_id = ""
-name = "role_1_name"
-env = {}
+# Your purple agent to be evaluated.
+# Replace this with your AgentBeats purple-agent ID.
+agentbeats_id = "019abc-1234-5678-90ab-cdef12345678"
 
-[[participants]]
-agentbeats_id = ""
-name = "role_2_name"
-env = {}
+# Required for PI-Bench result parsing and leaderboard compatibility.
+# Do not change.
+name = "agent"
+
+# Optional display name shown on the leaderboard.
+agent_name = "MyAgent"
+
+# Environment variables required by your purple agent.
+# Remove this line if your purple agent does not need OpenAI.
+env = { OPENAI_API_KEY = "${OPENAI_API_KEY}" }
 
 [config]
-# Add your assessment config here
+# Options:
+#   "all"    = official full PI-Bench run
+#   "domain" = run only one PI-Bench domain for debugging
+scenario_scope = "all"
+
+# Optional concurrency for scenario execution.
+# Keep this at 1 for the official leaderboard unless PI-Bench maintainers
+# explicitly ask you to raise it. Higher values may hit model/API rate limits.
+concurrency = 1
+
+# Required only when scenario_scope = "domain".
+# Options: "finra", "retail", "helpdesk"
+# scenario_domain = "finra"

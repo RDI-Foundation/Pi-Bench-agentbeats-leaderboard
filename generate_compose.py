@@ -54,6 +54,8 @@ ENV_PATH = ".env.example"
 
 DEFAULT_PORT = 9009
 DEFAULT_ENV_VARS = {"PYTHONUNBUFFERED": "1"}
+GREEN_CONCURRENCY = 1
+PUBLIC_CONFIG_KEYS = {"scenario_scope", "scenario_domain", "concurrency"}
 
 COMPOSE_TEMPLATE = """# Auto-generated from scenario.toml
 
@@ -62,7 +64,7 @@ services:
     image: {green_image}
     platform: linux/amd64
     container_name: green-agent
-    command: ["--host", "0.0.0.0", "--port", "{green_port}", "--card-url", "http://green-agent:{green_port}"]
+    command: ["--host", "0.0.0.0", "--port", "{green_port}", "--card-url", "http://green-agent:{green_port}", "--concurrency", "{green_concurrency}"]
     environment:{green_env}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:{green_port}/.well-known/agent-card.json"]
@@ -175,9 +177,23 @@ def format_depends_on(services: list) -> str:
     return "\n" + "\n".join(lines)
 
 
+def parse_concurrency(config: dict[str, Any]) -> int:
+    raw_value = config.get("concurrency", GREEN_CONCURRENCY)
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError):
+        print("Error: config.concurrency must be a positive integer")
+        sys.exit(1)
+    if value < 1:
+        print("Error: config.concurrency must be a positive integer")
+        sys.exit(1)
+    return value
+
+
 def generate_docker_compose(scenario: dict[str, Any]) -> str:
     green = scenario["green_agent"]
     participants = scenario.get("participants", [])
+    green_concurrency = parse_concurrency(scenario.get("config", {}))
 
     participant_names = [p["name"] for p in participants]
 
@@ -196,6 +212,7 @@ def generate_docker_compose(scenario: dict[str, Any]) -> str:
     return COMPOSE_TEMPLATE.format(
         green_image=green["image"],
         green_port=DEFAULT_PORT,
+        green_concurrency=green_concurrency,
         green_env=format_env_vars(green.get("env", {})),
         green_depends=format_depends_on(participant_names),
         participant_services=participant_services,
@@ -207,6 +224,14 @@ def generate_a2a_scenario(scenario: dict[str, Any]) -> str:
     green = scenario["green_agent"]
     participants = scenario.get("participants", [])
 
+    # Validate that all participants have name="agent" for PI-Bench compatibility
+    for p in participants:
+        name = p.get("name")
+        if name != "agent":
+            print(f"Error: Participant name must be 'agent' for PI-Bench leaderboard compatibility (got: '{name}')")
+            print("Use the 'agent_name' field for custom display names on the leaderboard.")
+            sys.exit(1)
+
     participant_lines = []
     for p in participants:
         lines = [
@@ -216,9 +241,16 @@ def generate_a2a_scenario(scenario: dict[str, Any]) -> str:
         ]
         if "agentbeats_id" in p:
             lines.append(f"agentbeats_id = \"{p['agentbeats_id']}\"")
+        if "agent_name" in p:
+            lines.append(f"agent_name = \"{p['agent_name']}\"")
         participant_lines.append("\n".join(lines) + "\n")
 
-    config_section = scenario.get("config", {})
+    raw_config = scenario.get("config", {})
+    config_section = {
+        key: value
+        for key, value in raw_config.items()
+        if key in PUBLIC_CONFIG_KEYS and value not in (None, "")
+    }
     config_lines = [tomli_w.dumps({"config": config_section})]
 
     return A2A_SCENARIO_TEMPLATE.format(
