@@ -1,0 +1,83 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_nebius_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_nvidia_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "green_openai_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [
+      "green_openai_api_key",
+      "agent_nvidia_api_key",
+      "agent_openai_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "domain": "policy_compliance"
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/pi-bench-agentbeats/c475e242668e9d9c114349c2ff71a70b08a57052/amber/amber-manifest-green.json5",
+      "config": {
+        "openai_api_key": "${config.green_openai_api_key}"
+      }
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/tenalirama2005/pi-bench-agentx/master/amber-manifest.json5",
+      "config": {
+        "nebius_api_key": "${config.agent_nebius_api_key}",
+        "nvidia_api_key": "${config.agent_nvidia_api_key}",
+        "openai_api_key": "${config.agent_openai_api_key}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d4567-5114-7310-ad51-487217436b99",
+      "agent": "019d93ce-bc4e-7211-8e3b-0c61605df5bb"
+    }
+  }
+}
