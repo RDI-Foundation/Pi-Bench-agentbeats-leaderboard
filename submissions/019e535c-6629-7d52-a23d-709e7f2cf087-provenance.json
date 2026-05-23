@@ -1,0 +1,22 @@
+{
+  "image_digests": {
+    "/agent": "ghcr.io/kingmaoqin/dhai-agenticai@sha256:69e81a0de24223f52614ce2594a5175b1b8757bd419545bd6a9420a54faff491",
+    "/gateway": "ghcr.io/rdi-foundation/agentbeats-gateway@sha256:3f9976889c598092dc4273312ec431cbc48bbe064ff65b5613425f4990bc1d4c",
+    "/green": "ghcr.io/jyoti-ranjan-das845/pi-bench-green@sha256:720b5531484d775b7fde0bd197963717dd279c4330400417f0f450e6fb525e7e"
+  },
+  "manifest_digests": {
+    "/": "sha256:HcFRO8D19fH/JmCzB/6QiYbOtY9gnSzFq1jizZuHT48=",
+    "/agent": "sha256:zzhYxOXUMv1PKkpvUzmlgfGs0tRgKipbwJtID12GCkM=",
+    "/gateway": "sha256:Ba99ymNGSymbrF9jGwLfnZaSnzPrw9sTJ5veaYMxV2Q=",
+    "/green": "sha256:/DJ3NcRbxu31bzsIN2jExRCwNiQ7sroHatK9CqKePN0="
+  },
+  "timestamp": "2026-05-23T05:48:12Z",
+  "github_actions": {
+    "run_url": "https://github.com/RDI-Foundation/Pi-Bench-agentbeats-leaderboard/actions/runs/26324919279",
+    "ref": "refs/pull/116/merge",
+    "sha": "dcf7e26d2370d9480a46e9610215b4eeb1937c41",
+    "repository_url": "https://github.com/RDI-Foundation/Pi-Bench-agentbeats-leaderboard",
+    "workflow_ref": "RDI-Foundation/Pi-Bench-agentbeats-leaderboard/.github/workflows/quick-submit.yml@refs/pull/116/merge",
+    "workflow_sha": "dcf7e26d2370d9480a46e9610215b4eeb1937c41"
+  }
+}
