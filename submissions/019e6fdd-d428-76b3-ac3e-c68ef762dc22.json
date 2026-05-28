@@ -1,0 +1,85 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_model": {
+        "type": "string",
+        "default": "gpt-4.1",
+        "description": "LLM model identifier passed to the OpenAI client (e.g. gpt-4.1, gpt-4o, anthropic/claude-sonnet-4-5). Empty string falls back to gpt-4.1."
+      },
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true,
+        "description": "OpenAI-compatible API key (works with OpenRouter, Together, vLLM, etc. via openai_base_url)."
+      },
+      "agent_openai_base_url": {
+        "type": "string",
+        "default": "",
+        "description": "Optional. Base URL for non-OpenAI providers (e.g. https://openrouter.ai/api/v1). Leave empty for OpenAI."
+      },
+      "green_openai_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [
+      "green_openai_api_key",
+      "agent_openai_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "domain": "all"
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://raw.githubusercontent.com/Jyoti-Ranjan-Das845/pi-bench/refs/heads/main/amber/amber-manifest-green.json5",
+      "config": {
+        "openai_api_key": "${config.green_openai_api_key}"
+      }
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/LogoMesh/LogoMesh/main-generalized-phase2/amber-manifest.json5?v=2",
+      "config": {
+        "model": "${config.agent_model}",
+        "openai_api_key": "${config.agent_openai_api_key}",
+        "openai_base_url": "${config.agent_openai_base_url}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d4567-5114-7310-ad51-487217436b99",
+      "agent": "019e65a7-b575-78d3-8ba1-74915449f55d"
+    }
+  }
+}
