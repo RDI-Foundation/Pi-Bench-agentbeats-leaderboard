@@ -1,0 +1,92 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_caum_agent_llm": {
+        "type": "string",
+        "default": "openai/gpt-4.1"
+      },
+      "agent_caum_agentbeats_mode": {
+        "type": "string",
+        "default": "control"
+      },
+      "agent_caum_live_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_caum_live_url": {
+        "type": "string",
+        "default": "https://caum-observation-production.up.railway.app/v2/live"
+      },
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "green_openai_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [
+      "green_openai_api_key",
+      "agent_openai_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "domain": "all"
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://raw.githubusercontent.com/Jyoti-Ranjan-Das845/pi-bench/refs/heads/main/amber/amber-manifest-green.json5",
+      "config": {
+        "openai_api_key": "${config.green_openai_api_key}"
+      }
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/caum-systems/caum-agentbeats-purple/main/amber-manifest.json5",
+      "config": {
+        "caum_agent_llm": "${config.agent_caum_agent_llm}",
+        "caum_agentbeats_mode": "${config.agent_caum_agentbeats_mode}",
+        "caum_live_api_key": "${config.agent_caum_live_api_key}",
+        "caum_live_url": "${config.agent_caum_live_url}",
+        "openai_api_key": "${config.agent_openai_api_key}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d4567-5114-7310-ad51-487217436b99",
+      "agent": "019e8bc1-e03a-75c2-b8bf-342e8d2d03e4"
+    }
+  }
+}
