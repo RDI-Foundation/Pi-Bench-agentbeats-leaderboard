@@ -1,0 +1,88 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_openai_api_key": {
+        "type": "string",
+        "secret": true
+      },
+      "agent_openai_model": {
+        "type": "string",
+        "default": "gpt-5"
+      },
+      "agent_reasoning_effort": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "default": "medium"
+      },
+      "green_openai_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [
+      "green_openai_api_key",
+      "agent_openai_api_key"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "domain": "all",
+          "concurrency": 1
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://raw.githubusercontent.com/Jyoti-Ranjan-Das845/pi-bench/refs/heads/main/amber/amber-manifest-green.json5",
+      "config": {
+        "openai_api_key": "${config.green_openai_api_key}"
+      }
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/tdealer01-crypto/DSG-Cinema-Proof-Agent/faa1c12067c1519a3e5ec16568e469c6dd21194f/benchmarks/pibench_dsg/amber-manifest.json5",
+      "config": {
+        "openai_api_key": "${config.agent_openai_api_key}",
+        "openai_model": "${config.agent_openai_model}",
+        "reasoning_effort": "${config.agent_reasoning_effort}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d4567-5114-7310-ad51-487217436b99",
+      "agent": "01a049f0-ad8d-7133-8681-5d5945b2d6ce"
+    }
+  }
+}
