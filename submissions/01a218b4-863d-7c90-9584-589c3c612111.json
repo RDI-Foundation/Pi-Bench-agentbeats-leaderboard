@@ -1,0 +1,80 @@
+{
+  "manifest_version": "0.1.0",
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "agent_mobilework_llm_api_key": {
+        "type": "string",
+        "secret": true,
+        "description": "Purple agent model API key; supplied through the submission UI."
+      },
+      "agent_mobilework_llm_base_url": {
+        "type": "string",
+        "secret": true,
+        "description": "Provider base URL; supplied through the submission UI and not stored in this manifest."
+      },
+      "green_openai_api_key": {
+        "type": "string",
+        "secret": true
+      }
+    },
+    "required": [
+      "green_openai_api_key",
+      "agent_mobilework_llm_api_key",
+      "agent_mobilework_llm_base_url"
+    ],
+    "additionalProperties": false
+  },
+  "components": {
+    "gateway": {
+      "manifest": "https://raw.githubusercontent.com/RDI-Foundation/agentbeats-gateway/refs/tags/v0.3/amber-manifest.json5",
+      "config": {
+        "assessment_config": {
+          "domain": "all"
+        },
+        "participant_roles": {
+          "green": "green",
+          "purple1": "agent"
+        },
+        "callback_urls": {}
+      }
+    },
+    "green": {
+      "manifest": "https://raw.githubusercontent.com/Jyoti-Ranjan-Das845/pi-bench/refs/heads/main/amber/amber-manifest-green.json5",
+      "config": {
+        "openai_api_key": "${config.green_openai_api_key}"
+      }
+    },
+    "agent": {
+      "manifest": "https://raw.githubusercontent.com/haitaoxiao/jiutian-mobilework-agent-amber/e84e07ff00c88572972a80618b399173b167b1d7/amber-manifest.json5",
+      "config": {
+        "mobilework_llm_api_key": "${config.agent_mobilework_llm_api_key}",
+        "mobilework_llm_base_url": "${config.agent_mobilework_llm_base_url}"
+      }
+    }
+  },
+  "bindings": [
+    {
+      "to": "#gateway.green",
+      "from": "#green.a2a"
+    },
+    {
+      "to": "#gateway.purple1",
+      "from": "#agent.a2a"
+    },
+    {
+      "to": "#green.proxy",
+      "from": "#gateway.proxy",
+      "weak": true
+    }
+  ],
+  "exports": {
+    "results": "#gateway.results"
+  },
+  "metadata": {
+    "agentbeats_ids": {
+      "green": "019d4567-5114-7310-ad51-487217436b99",
+      "agent": "01a218a9-e9e3-70d3-8de3-bfe5155640d7"
+    }
+  }
+}
